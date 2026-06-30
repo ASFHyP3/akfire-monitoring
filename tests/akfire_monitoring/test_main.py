@@ -6,7 +6,7 @@ def test_prepare_feds():
     feds_job = main.prepare_feds(name)
 
     assert feds_job['name'] == name
-    assert feds_job['type'] == 'AK_FIRE_SAFE'
+    assert feds_job['job_type'] == 'AK_FIRE_SAFE'
 
 
 def test_prepare_firetrack():
@@ -14,4 +14,4 @@ def test_prepare_firetrack():
     firetrack_job = main.prepare_firetrack(name)
 
     assert firetrack_job['name'] == name
-    assert firetrack_job['type'] == 'FIRE_TRACK'
+    assert firetrack_job['job_type'] == 'FIRE_TRACK'

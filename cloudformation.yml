@@ -1,5 +1,8 @@
 Parameters:
-  BucketTopicArn:
+  TxtTopicArn:
+    Type: String
+
+  NcTopicArn:
     Type: String
 
   Hyp3Api:
@@ -60,7 +63,7 @@ Resources:
             Resource: !GetAtt Queue.Arn
             Condition:
               ArnEquals:
-                aws:SourceArn: [!Ref BucketTopicArn]
+                aws:SourceArn: [!Ref TxtTopicArn]
       Queues:
         - !Ref Queue
 
@@ -86,7 +89,7 @@ Resources:
             Resource: !GetAtt QueueBucket.Arn
             Condition:
               ArnEquals:
-                aws:SourceArn: [!Ref BucketTopicArn]
+                aws:SourceArn: [!Ref NcTopicArn]
       Queues:
         - !Ref QueueBucket
 
@@ -123,7 +126,7 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaFEDS
       BatchSize: 1
-      EventSourceArn: !GetAtt QueueBucket.Arn
+      EventSourceArn: !GetAtt Queue.Arn
       FunctionResponseTypes:
         - ReportBatchItemFailures
       ScalingConfig:
@@ -161,7 +164,7 @@ Resources:
             Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
           - Effect: Allow
             Action: sqs:*
-            Resource: !GetAtt QueueBucket.Arn
+            Resource: !GetAtt Queue.Arn
           - Effect: Allow
             Action: dynamodb:Query
             Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${Hyp3JobsTable}*"
@@ -209,7 +212,7 @@ Resources:
     Properties:
       FunctionName: !Ref Lambda
       BatchSize: 1
-      EventSourceArn: !GetAtt Queue.Arn
+      EventSourceArn: !GetAtt QueueBucket.Arn
       FunctionResponseTypes:
         - ReportBatchItemFailures
       ScalingConfig:
@@ -247,7 +250,7 @@ Resources:
             Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
           - Effect: Allow
             Action: sqs:*
-            Resource: !GetAtt Queue.Arn
+            Resource: !GetAtt QueueBucket.Arn
           - Effect: Allow
             Action: dynamodb:Query
             Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${Hyp3JobsTable}*"

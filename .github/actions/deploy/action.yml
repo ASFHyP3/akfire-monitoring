@@ -6,7 +6,9 @@ inputs:
     required: true
   CF_TEMPLATE_BUCKET:
     required: true
-  BUCKET_TOPIC_ARN:
+  TXT_TOPIC_ARN:
+    required: true
+  NC_TOPIC_ARN:
     required: true
   HYP3_API:
     required: true
@@ -39,7 +41,8 @@ runs:
           --stack-name=${{ inputs.STACK_NAME }} \
           --capabilities CAPABILITY_IAM \
           --parameter-overrides \
-            BucketTopicArn=${{ inputs.BUCKET_TOPIC_ARN }} \
+            TxtTopicArn=${{ inputs.TXT_TOPIC_ARN }} \
+            NcTopicArn=${{ inputs.NC_TOPIC_ARN }} \
             Hyp3Api=${{ inputs.HYP3_API }} \
             Hyp3JobsTable=${{ inputs.HYP3_JOBS_TABLE }} \
             LambdaLoggingLevel=${{ inputs.LAMBDA_LOGGING_LEVEL }} \

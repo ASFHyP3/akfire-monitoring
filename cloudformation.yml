@@ -28,8 +28,8 @@ Parameters:
   PublishBucket:
     Type: String
     AllowedValues:
-      - ak-fire-data
-      - ak-fire-data-test
+      - ak-fire-safe-data
+      - ak-fire-safe-data-test
 
   EcrImageUri:
     Description: ECR image URI

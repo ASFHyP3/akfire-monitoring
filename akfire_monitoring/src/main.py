@@ -47,15 +47,31 @@ def get_hyp3_instance() -> sdk.HyP3:
 
 
 def prepare_feds(name: str) -> dict:
+    """Prepare FEDS job.
+
+    Args:
+        name: Name of the job to submitted
+
+    Returns:
+        feds_job: Dictionary with the job parameters.
+    """
     feds_job = deepcopy(FEDS_JOB_TEMPLATE)
     feds_job['name'] = name
     return feds_job
 
 
 def prepare_firetrack(name: str) -> dict:
+    """Prepare fire track job.
+
+    Args:
+        name: Name of the job to submitted
+
+    Returns:
+        firetrack_job: Dictionary with the job parameters.
+    """
     firetrack_job = deepcopy(FIRETRACK_JOB_TEMPLATE)
     firetrack_job['name'] = name
-    return feds_job
+    return firetrack_job
 
 
 def lambda_handler(event: dict, context: object) -> dict:
@@ -68,7 +84,7 @@ def lambda_handler(event: dict, context: object) -> dict:
     Returns:
         FEDS submitted job.
     """
-    sdate = datetime.now().strftime("%y%m%d%H%M%S")
+    sdate = datetime.now().strftime('%y%m%d%H%M%S')
     name = f'FEDS_{sdate}'
     hyp3 = get_hyp3_instance()
     feds_job = prepare_feds(name)
@@ -86,7 +102,7 @@ def lambda_bucket_handler(event: dict, context: object) -> dict:
     Returns:
         Fire track submitted job.
     """
-    sdate = datetime.now().strftime("%y%m%d%H%M%S")
+    sdate = datetime.now().strftime('%y%m%d%H%M%S')
     name = f'FIRETRACK_{sdate}'
     hyp3 = get_hyp3_instance()
     firetrack_job = prepare_firetrack(name)

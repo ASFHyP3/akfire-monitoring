@@ -116,7 +116,8 @@ jobs:
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
           CF_TEMPLATE_BUCKET: cf-templates-kc34l8cyitfn-us-west-2
-          BUCKET_TOPIC_ARN: ${{ vars.BUCKET_TOPIC_ARN }}
+          TXT_TOPIC_ARN: ${{ vars.TXT_TOPIC_ARN }}
+          NC_TOPIC_ARN: ${{ vars.NC_TOPIC_ARN }}
           HYP3_API: ${{ vars.HYP3_API }}
           HYP3_JOBS_TABLE: ${{ vars.HYP3_JOBS_TABLE }}
           LAMBDA_LOGGING_LEVEL: INFO

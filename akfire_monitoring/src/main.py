@@ -74,7 +74,7 @@ def prepare_firetrack(name: str) -> dict:
     return firetrack_job
 
 
-def lambda_handler(event: dict, context: object) -> dict:
+def lambda_bucket_handler(event: dict, context: object) -> dict:
     """FEDS processing lambda function.
 
     Args:
@@ -92,7 +92,7 @@ def lambda_handler(event: dict, context: object) -> dict:
     return feds_job
 
 
-def lambda_bucket_handler(event: dict, context: object) -> dict:
+def lambda_handler(event: dict, context: object) -> dict:
     """Fire track notification processing lambda function.
 
     Args:

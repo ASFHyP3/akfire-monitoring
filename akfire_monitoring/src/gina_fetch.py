@@ -18,8 +18,6 @@ from gina_nrt_fetch.fetch_products import (
 log = logging.getLogger('akfire_monitoring')
 log.setLevel(os.environ.get('LOGGING_LEVEL', 'INFO'))
 
-PUBLISH_BUCKET = os.getenv('PUBLISH_BUCKET')
-
 
 def fetch_viirs_detections() -> tuple[list[str], list[str]]:
     """Fetch VIIRS fire products and return paired TXT and NetCDF URLs.
@@ -52,8 +50,12 @@ def exists_on_s3(s3: BaseClient, bucket: str, key: str) -> bool:
         raise
 
 
-def check_and_upload_s3(file: str, s3: BaseClient, bucket: str, key: str) -> None:
-    """Upload URL content to S3 when the destination key does not already exist."""
+def check_and_upload_s3(file: str, s3: BaseClient, bucket: str, key: str) -> bool:
+    """Upload URL content to S3 when the destination key does not already exist.
+
+    Returns:
+        True when the file was uploaded, otherwise False when it already existed.
+    """
     if not exists_on_s3(s3, bucket, key):
         log.info('Uploading file %s', file)
         with requests.get(file, stream=True) as response:
@@ -65,20 +67,42 @@ def check_and_upload_s3(file: str, s3: BaseClient, bucket: str, key: str) -> Non
                 Key=key,
                 ExtraArgs={'ContentType': response.headers.get('content-type')},
             )
+            return True
     else:
         log.debug('File already in bucket: %s', file)
+        return False
 
 
-def run_upload(s3_bucket: str) -> None:
-    """Fetch VIIRS detections and upload paired TXT/NetCDF products to S3."""
+def lambda_gina_fetch_handler(event: dict, context: object) -> dict:
+    """Fetch VIIRS detections and upload paired TXT/NetCDF products to S3.
+
+    Returns:
+        A compact summary of the upload run.
+    """
     s3 = boto3.client('s3')
+    s3_bucket = os.environ.get('PUBLISH_BUCKET')
 
     txt_files, nc_files = fetch_viirs_detections()
+    uploaded = 0
+    skipped = 0
 
     for f in txt_files:
         key = f'txt/{Path(f).name}'
-        check_and_upload_s3(f, s3, s3_bucket, key)
+        if check_and_upload_s3(f, s3, s3_bucket, key):
+            uploaded += 1
+        else:
+            skipped += 1
 
     for nc in nc_files:
         key = f'netcdf/{Path(nc).name}'
-        check_and_upload_s3(nc, s3, s3_bucket, key)
+        if check_and_upload_s3(nc, s3, s3_bucket, key):
+            uploaded += 1
+        else:
+            skipped += 1
+
+    return {
+        'bucket': s3_bucket,
+        'uploaded': uploaded,
+        'skipped': skipped,
+        'total': uploaded + skipped,
+    }

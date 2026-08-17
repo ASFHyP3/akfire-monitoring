@@ -82,6 +82,11 @@ def lambda_gina_fetch_handler(event: dict, context: object) -> dict:
     s3 = boto3.client('s3')
     s3_bucket = os.environ.get('PUBLISH_BUCKET')
 
+    if s3_bucket is None:
+        raise ValueError('The PUBLISH_BUCKET variable has not been defined')
+
+    s3_bucket = str(s3_bucket)
+
     txt_files, nc_files = fetch_viirs_detections()
     uploaded = 0
     skipped = 0

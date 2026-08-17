@@ -275,6 +275,82 @@ Resources:
               - ecr:GetAuthorizationToken
               - ecr:GetDownloadUrlForLayer
             Resource: !Sub "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
+  
+  LambdaUploader:
+    Type: AWS::Lambda::Function
+    Properties:
+      PackageType: Image
+      ImageConfig:
+        Command:
+          - gina_fetch.lambda_gina_fetch_handler
+      Code:
+        ImageUri: !Ref EcrImageUri
+      Role: !GetAtt LambdaUploaderRole.Arn
+      MemorySize: 256
+      Timeout: 60
+      Environment:
+        Variables:
+          LOGGING_LEVEL: !Ref LambdaLoggingLevel
+          PUBLISH_BUCKET: !Ref PublishBucket
+
+  LambdaUploaderLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${LambdaUploader}"
+      RetentionInDays: 90
+
+  LambdaUploaderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Action: sts:AssumeRole
+          Principal:
+            Service: lambda.amazonaws.com
+          Effect: Allow
+      ManagedPolicyArns:
+        - !Ref LambdaUploaderPolicy
+
+  LambdaUploaderPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*"
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub "arn:aws:s3:::${PublishBucket}/*"
+              - !Sub "arn:aws:s3:::${PublishBucket}"
+
+  UploaderScheduleRule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: cron(0/5 * * * ? *)  # every 5 min, UTC
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt LambdaUploader.Arn
+          Id: UploaderTarget
+
+  UploaderSchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LambdaUploader
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt UploaderScheduleRule.Arn
 
 Outputs:
   AkfireMonitoringQueueArn:

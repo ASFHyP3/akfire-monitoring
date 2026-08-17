@@ -2,6 +2,7 @@
 
 import logging
 import os
+import zoneinfo
 from copy import deepcopy
 from datetime import datetime
 
@@ -84,7 +85,8 @@ def lambda_bucket_handler(event: dict, context: object) -> dict:
     Returns:
         FEDS submitted job.
     """
-    sdate = datetime.now().strftime('%y%m%d%H%M%S')
+    alaska_tz = zoneinfo.ZoneInfo('America/Anchorage')
+    sdate = datetime.now(alaska_tz).strftime('%y%m%d%H%M%S')
     name = f'FEDS_{sdate}'
     hyp3 = get_hyp3_instance()
     feds_job = prepare_feds(name)
@@ -102,7 +104,8 @@ def lambda_handler(event: dict, context: object) -> dict:
     Returns:
         Fire track submitted job.
     """
-    sdate = datetime.now().strftime('%y%m%d%H%M%S')
+    alaska_tz = zoneinfo.ZoneInfo('America/Anchorage')
+    sdate = datetime.now(alaska_tz).strftime('%y%m%d%H%M%S')
     name = f'FIRETRACK_{sdate}'
     hyp3 = get_hyp3_instance()
     firetrack_job = prepare_firetrack(name)
@@ -112,7 +115,7 @@ def lambda_handler(event: dict, context: object) -> dict:
 
 def main() -> None:
     """HyP3 entrypoint for akfire_monitoring."""
-    return None
+    return
 
 
 if __name__ == '__main__':

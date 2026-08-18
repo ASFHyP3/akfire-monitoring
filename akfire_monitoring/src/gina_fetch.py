@@ -60,6 +60,7 @@ def check_and_upload_s3(file: str, s3: BaseClient, bucket: str, key: str) -> boo
         log.info('Uploading file %s', file)
         with requests.get(file, stream=True) as response:
             response.raise_for_status()
+            response.raw.decode_content = (True,)
 
             s3.upload_fileobj(
                 Fileobj=response.raw,

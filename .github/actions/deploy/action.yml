@@ -6,6 +6,8 @@ inputs:
     required: true
   CF_TEMPLATE_BUCKET:
     required: true
+  CF_ROLE_ARN:
+    required: true
   TXT_TOPIC_ARN:
     required: true
   NC_TOPIC_ARN:
@@ -39,6 +41,7 @@ runs:
         aws cloudformation deploy \
           --template-file packaged.yml \
           --stack-name=${{ inputs.STACK_NAME }} \
+          --role-arn ${{ inputs.CF_ROLE_ARN }} \
           --capabilities CAPABILITY_IAM \
           --parameter-overrides \
             TxtTopicArn=${{ inputs.TXT_TOPIC_ARN }} \
